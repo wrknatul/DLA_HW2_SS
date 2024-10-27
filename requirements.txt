@@ -8,6 +8,10 @@ pandas
 wandb
 comet_ml
 hydra-core
+librosa
+soundfile
+pyloudnorm
+glob
 
 black
 isort
