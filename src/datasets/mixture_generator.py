@@ -8,7 +8,6 @@ import glob
 from glob import glob
 
 
-
 def snr_mixer(clean, noise, snr):
     amp_noise = np.linalg.norm(clean) / 10**(snr / 20)
 
