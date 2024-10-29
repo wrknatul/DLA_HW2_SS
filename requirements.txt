@@ -1,6 +1,8 @@
 torch==2.2.0
 torchvision==0.17.0
+torchaudio
 torchmetrics
+speechbrain==0.5.16
 numpy==1.26.4
 tqdm
 matplotlib
@@ -11,7 +13,7 @@ hydra-core
 librosa
 soundfile
 pyloudnorm
-glob
+glob2
 
 black
 isort
