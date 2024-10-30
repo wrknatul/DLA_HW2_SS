@@ -1,6 +1,6 @@
 torch==2.2.0
 torchvision==0.17.0
-torchaudio
+torchaudio==2.0.2
 torchmetrics
 speechbrain==0.5.16
 numpy==1.26.4
