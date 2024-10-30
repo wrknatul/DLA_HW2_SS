@@ -41,7 +41,7 @@ class LibreSpeechMixer(BaseDataset):
         if data_dir is None:
             data_dir = ROOT_PATH / "data" / "datasets" / "librispeech"
         self._data_dir = Path(data_dir)
-        index = self._get_or_load_index(part, mixer)
+        # index = self._get_or_load_index(part, mixer)
         # super().__init__(index, *args, **kwargs)
 
 
