@@ -38,12 +38,11 @@ def files_collector(audios_dir, audioTemplate="*-norm.wav", with_text=False):
 class LibreSpeechMixer(BaseDataset):
     def __init__(self, part, mixer=None, data_dir=None, *args, **kwargs):
         assert part in URL_LINKS or part == 'train_all'
-        return
-        if data_dir is None:
-            data_dir = ROOT_PATH / "data" / "datasets" / "librispeech"
-        self._data_dir = Path(data_dir)
-        index = self._get_or_load_index(part, mixer)
-        super().__init__(index, *args, **kwargs)
+        # if data_dir is None:
+        #     data_dir = ROOT_PATH / "data" / "datasets" / "librispeech"
+        # self._data_dir = Path(data_dir)
+        # index = self._get_or_load_index(part, mixer)
+        super().__init__(False, *args, **kwargs)
 
 
     def _load_part(self, part):
