@@ -27,12 +27,12 @@ URL_LINKS = {
     "train-other-500": "https://www.openslr.org/resources/12/train-other-500.tar.gz",
 }
 
-def files_collector(audios_dir, audioTemplate="*-norm.wav", with_text=False):
+def files_collector(audios_dir, audioTemplate="*-norm.wav"):
     result = []
     for speaker_id in os.listdir(audios_dir):
         speaker_dir_path = os.path.join(audios_dir, speaker_id)
         if os.path.isdir(speaker_dir_path):
-            result.append(LibriSpeechSpeakerFiles(speaker_id, audios_dir, audioTemplate, with_text))
+            result.append(LibriSpeechSpeakerFiles(speaker_id, audios_dir, audioTemplate))
     return result
 
 class LibreSpeechMixer(BaseDataset):
@@ -103,10 +103,6 @@ class LibreSpeechMixer(BaseDataset):
         mixes = np.array(sorted(glob(os.path.join(mixes_out_folder, '*-mixed.wav'))), dtype=object)
         targets = np.array(sorted(glob(os.path.join(mixes_out_folder, '*-target.wav'))), dtype=object)
         speaker_ids = np.array([int(ref.split("/")[-1].split("_")[0]) for ref in refs])
-        
-        with_text = mixer_config.get("with_text", False)
-        if with_text:
-            texts = np.array(sorted(glob(os.path.join(mixes_out_folder, '*.txt'))), dtype=object)
 
         sorted_indices = speaker_ids.argsort()
         refs = refs[sorted_indices]
@@ -114,13 +110,8 @@ class LibreSpeechMixer(BaseDataset):
         targets = targets[sorted_indices]
         speaker_ids = speaker_ids[sorted_indices]
         speaker_ids_mapped = [0] + np.cumsum((speaker_ids[1:] > speaker_ids[:-1]).astype(int)).tolist()
-        if with_text:
-            texts = texts[sorted_indices]
         
-        if with_text:
-            zipped_data = zip(refs, mixes, targets, speaker_ids_mapped, texts)
-        else:
-            zipped_data = zip(refs, mixes, targets, speaker_ids_mapped)
+        zipped_data = zip(refs, mixes, targets, speaker_ids_mapped)
         index = []
         for tuple in zipped_data:
             index_row = {
@@ -129,7 +120,5 @@ class LibreSpeechMixer(BaseDataset):
                 "target": tuple[2],
                 "speaker_id": tuple[3]
             }
-            if with_text:
-                index_row["text"] = tuple[-1]
             index.append(index_row)
         return index
