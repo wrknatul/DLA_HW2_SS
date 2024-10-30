@@ -128,26 +128,6 @@ class BaseDataset(Dataset):
         pass
 
     @staticmethod
-    def _assert_index_is_valid(index):
-        """
-        Check the structure of the index and ensure it satisfies the desired
-        conditions.
-
-        Args:
-            index (list[dict]): list, containing dict for each element of
-                the dataset. The dict has required metadata information,
-                such as label and object path.
-        """
-        for entry in index:
-            assert "path" in entry, (
-                "Each dataset item should include field 'path'" " - path to audio file."
-            )
-            assert "label" in entry, (
-                "Each dataset item should include field 'label'"
-                " - object ground-truth label."
-            )
-
-    @staticmethod
     def _sort_index(index):
         """
         Sort index via some rules.
