@@ -39,30 +39,18 @@ class BaseDataset(Dataset):
 
         self.instance_transforms = instance_transforms
 
-    def __getitem__(self, ind):
-        """
-        Get element from the index, preprocess it, and combine it
-        into a dict.
-
-        Notice that the choice of key names is defined by the template user.
-        However, they should be consistent across dataset getitem, collate_fn,
-        loss_function forward method, and model forward method.
-
-        Args:
-            ind (int): index in the self.index list.
-        Returns:
-            instance_data (dict): dict, containing instance
-                (a single dataset element).
-        """
+def __getitem__(self, ind):
         data_dict = self._index[ind]
-        data_path = data_dict["path"]
-        data_object = self.load_object(data_path)
-        data_label = data_dict["label"]
-
-        instance_data = {"data_object": data_object, "labels": data_label}
-        instance_data = self.preprocess_data(instance_data)
-
-        return instance_data
+        result_dict = {
+            "reference": self.load_audio(data_dict["reference"]),
+            "mix": self.load_audio(data_dict["mix"]),
+            "target": self.load_audio(data_dict["target"]),
+            "speaker_id": data_dict["speaker_id"],
+            "mix_path": data_dict["mix"]
+        }
+        if "text" in data_dict:
+            result_dict["text"] = data_dict["text"]
+        return result_dict
 
     def __len__(self):
         """
