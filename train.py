@@ -8,7 +8,9 @@ from omegaconf import OmegaConf
 from src.datasets.data_utils import get_dataloaders
 from src.trainer import Trainer
 from src.utils.init_utils import set_random_seed, setup_saving_and_logging
-
+#DeBUG
+from src.datasets import LibreSpeechMixer
+#DeBug
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
@@ -35,7 +37,13 @@ def main(config):
 
     # setup data_loader instances
     # batch_transforms should be put on device
-    dataloaders, batch_transforms = get_dataloaders(config, device)
+    #dataloaders, batch_transforms = get_dataloaders(config, device)
+    #DeBUG
+    mixer = LibreSpeechMixer(part = "dev-other", mixer = {
+    "index_path": "train-clean-100-mixed-index.json",
+    "out_folder": "data/librispeech-mixes/librispeech-mixes/train-clean-100-mixed"
+    })
+    #DeBug
     return
     # build model architecture, then print to console
     model = instantiate(config.model).to(device)
