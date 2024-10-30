@@ -40,17 +40,17 @@ class BaseDataset(Dataset):
         self.instance_transforms = instance_transforms
 
 def __getitem__(self, ind):
-        data_dict = self._index[ind]
-        result_dict = {
-            "reference": self.load_audio(data_dict["reference"]),
-            "mix": self.load_audio(data_dict["mix"]),
-            "target": self.load_audio(data_dict["target"]),
-            "speaker_id": data_dict["speaker_id"],
-            "mix_path": data_dict["mix"]
-        }
-        if "text" in data_dict:
-            result_dict["text"] = data_dict["text"]
-        return result_dict
+    data_dict = self._index[ind]
+    result_dict = {
+        "reference": self.load_audio(data_dict["reference"]),
+        "mix": self.load_audio(data_dict["mix"]),
+        "target": self.load_audio(data_dict["target"]),
+        "speaker_id": data_dict["speaker_id"],
+        "mix_path": data_dict["mix"]
+    }
+    if "text" in data_dict:
+        result_dict["text"] = data_dict["text"]
+    return result_dict
 
     def __len__(self):
         """
