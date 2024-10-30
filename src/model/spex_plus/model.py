@@ -22,9 +22,6 @@ class SpexPlusModel(nn.Module):
             sizes_of_conv_kernels=sizes_of_conv_kernels,
             encoder_out_channels=encoder_out_channels)
         
-        # for testing
-        self.encoder_out_channels = encoder_out_channels
-        
 
     def forward(self, audio_mix, audio_reference) -> Tuple[torch.Tensor]:
         '''
