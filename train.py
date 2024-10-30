@@ -37,13 +37,7 @@ def main(config):
 
     # setup data_loader instances
     # batch_transforms should be put on device
-    #dataloaders, batch_transforms = get_dataloaders(config, device)
-    #DeBUG
-    mixer = LibreSpeechMixer(part = "dev-other", mixer = {
-    "index_path": "train-clean-100-mixed-index.json",
-    "out_folder": "data/librispeech-mixes/librispeech-mixes/train-clean-100-mixed"
-    })
-    #DeBug
+    dataloaders, batch_transforms = get_dataloaders(config, device)
     return
     # build model architecture, then print to console
     model = instantiate(config.model).to(device)
