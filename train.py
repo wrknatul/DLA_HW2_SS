@@ -36,7 +36,7 @@ def main(config):
     # setup data_loader instances
     # batch_transforms should be put on device
     dataloaders, batch_transforms = get_dataloaders(config, device)
-
+    return
     # build model architecture, then print to console
     model = instantiate(config.model).to(device)
     logger.info(model)
