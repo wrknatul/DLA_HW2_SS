@@ -76,7 +76,7 @@ class LibreSpeechMixer(BaseDataset):
             mixer_config = {}
         speakers_files = files_collector(split_dir, "*.flac")
         
-        nfiles = mixer_config.get("nfiles", 5000)
+        nfiles = mixer_config.get("nfiles", 200)
         test = mixer_config.get("test", False)
         mixer = MixtureGenerator(speakers_files, out_folder, nfiles=nfiles, test=test)
         
