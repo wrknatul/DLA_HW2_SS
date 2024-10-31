@@ -1,6 +1,6 @@
 train:
   _target_: src.datasets.LibreSpeechMixer
-  part: "train-clean-100"
+  part: "test-clean"
   mixer: {
     "index_path": "train-clean-100-mixed-index.json",
     "out_folder": "data/librispeech-mixes/librispeech-mixes/train-clean-100-mixed"
