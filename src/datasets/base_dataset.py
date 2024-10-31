@@ -2,155 +2,116 @@ import logging
 import random
 from typing import List
 
+import numpy as np
 import torch
+import torchaudio
+from torch import Tensor
 from torch.utils.data import Dataset
 
 logger = logging.getLogger(__name__)
 
 
 class BaseDataset(Dataset):
-    """
-    Base class for the datasets.
-
-    Given a proper index (list[dict]), allows to process different datasets
-    for the same task in the identical manner. Therefore, to work with
-    several datasets, the user only have to define index in a nested class.
-    """
-
     def __init__(
-        self, index, limit=None, shuffle_index=False, instance_transforms=None
+            self,
+            index,
+            wave_augs=None,
+            spec_augs=None,
+            limit=None,
+            max_audio_length=None
     ):
-        """
-        Args:
-            index (list[dict]): list, containing dict for each element of
-                the dataset. The dict has required metadata information,
-                such as label and object path.
-            limit (int | None): if not None, limit the total number of elements
-                in the dataset to 'limit' elements.
-            shuffle_index (bool): if True, shuffle the index. Uses python
-                random package with seed 42.
-            instance_transforms (dict[Callable] | None): transforms that
-                should be applied on the instance. Depend on the
-                tensor name.
-        """
+        self.wave_augs = wave_augs
+        self.spec_augs = spec_augs
 
-        index = self._shuffle_and_limit_index(index, limit, shuffle_index)
+        self._assert_index_is_valid(index)
+        self.num_speakers = max([item["speaker_id"] for item in index]) + 1
+        index = self._filter_records_from_dataset(index, max_audio_length, limit)
+        # it's a good idea to sort index by audio length
+        # It would be easier to write length-based batch samplers later
+        #index = self._sort_index(index)
         self._index: List[dict] = index
 
-        self.instance_transforms = instance_transforms
-
-def __getitem__(self, ind):
-    data_dict = self._index[ind]
-    result_dict = {
-        "reference": self.load_audio(data_dict["reference"]),
-        "mix": self.load_audio(data_dict["mix"]),
-        "target": self.load_audio(data_dict["target"]),
-        "speaker_id": data_dict["speaker_id"],
-        "mix_path": data_dict["mix"]
-    }
-    if "text" in data_dict:
-        result_dict["text"] = data_dict["text"]
-    return result_dict
-
-    def __len__(self):
-        """
-        Get length of the dataset (length of the index).
-        """
-        return len(self._index)
-
-    def load_object(self, path):
-        """
-        Load object from disk.
-
-        Args:
-            path (str): path to the object.
-        Returns:
-            data_object (Tensor):
-        """
-        data_object = torch.load(path)
-        return data_object
-
-    def preprocess_data(self, instance_data):
-        """
-        Preprocess data with instance transforms.
-
-        Each tensor in a dict undergoes its own transform defined by the key.
-
-        Args:
-            instance_data (dict): dict, containing instance
-                (a single dataset element).
-        Returns:
-            instance_data (dict): dict, containing instance
-                (a single dataset element) (possibly transformed via
-                instance transform).
-        """
-        if self.instance_transforms is not None:
-            for transform_name in self.instance_transforms.keys():
-                instance_data[transform_name] = self.instance_transforms[
-                    transform_name
-                ](instance_data[transform_name])
-        return instance_data
-
-    @staticmethod
-    def _filter_records_from_dataset(
-        index: list,
-    ) -> list:
-        """
-        Filter some of the elements from the dataset depending on
-        some condition.
-
-        This is not used in the example. The method should be called in
-        the __init__ before shuffling and limiting.
-
-        Args:
-            index (list[dict]): list, containing dict for each element of
-                the dataset. The dict has required metadata information,
-                such as label and object path.
-        Returns:
-            index (list[dict]): list, containing dict for each element of
-                the dataset that satisfied the condition. The dict has
-                required metadata information, such as label and object path.
-        """
-        # Filter logic
-        pass
+    def __getitem__(self, ind):
+        data_dict = self._index[ind]
+        result_dict = {
+            "reference": self.load_audio(data_dict["reference"]),
+            "mix": self.load_audio(data_dict["mix"]),
+            "target": self.load_audio(data_dict["target"]),
+            "speaker_id": data_dict["speaker_id"],
+            "mix_path": data_dict["mix"]
+        }
+        if "text" in data_dict:
+            result_dict["text"] = data_dict["text"]
+        return result_dict
 
     @staticmethod
     def _sort_index(index):
-        """
-        Sort index via some rules.
+        return sorted(index, key=lambda x: x["audio_len"])
 
-        This is not used in the example. The method should be called in
-        the __init__ before shuffling and limiting and after filtering.
+    def __len__(self):
+        return len(self._index)
 
-        Args:
-            index (list[dict]): list, containing dict for each element of
-                the dataset. The dict has required metadata information,
-                such as label and object path.
-        Returns:
-            index (list[dict]): sorted list, containing dict for each element
-                of the dataset. The dict has required metadata information,
-                such as label and object path.
-        """
-        return sorted(index, key=lambda x: x["KEY_FOR_SORTING"])
+    def load_audio(self, path):
+        audio_tensor, sr = torchaudio.load(path)
+        audio_tensor = audio_tensor[0:1, :]  # remove all channels but the first
+        target_sr = self.config_parser["preprocessing"]["sr"]
+        if sr != target_sr:
+            audio_tensor = torchaudio.functional.resample(audio_tensor, sr, target_sr)
+        return audio_tensor
+
+    def process_wave(self, audio_tensor_wave: Tensor):
+        with torch.no_grad():
+            if self.wave_augs is not None:
+                audio_tensor_wave = self.wave_augs(audio_tensor_wave)
+            wave2spec = self.config_parser.init_obj(
+                self.config_parser["preprocessing"]["spectrogram"],
+                torchaudio.transforms,
+            )
+            audio_tensor_spec = wave2spec(audio_tensor_wave)
+            if self.spec_augs is not None:
+                audio_tensor_spec = self.spec_augs(audio_tensor_spec)
+            return audio_tensor_wave, audio_tensor_spec
 
     @staticmethod
-    def _shuffle_and_limit_index(index, limit, shuffle_index):
-        """
-        Shuffle elements in index and limit the total number of elements.
+    def _filter_records_from_dataset(
+            index: list, max_audio_length, limit
+    ) -> list:
+        initial_size = len(index)
+        if max_audio_length is not None:
+            exceeds_audio_length = np.array([el["audio_len"] for el in index]) >= max_audio_length
+            _total = exceeds_audio_length.sum()
+            logger.info(
+                f"{_total} ({_total / initial_size:.1%}) records are longer then "
+                f"{max_audio_length} seconds. Excluding them."
+            )
+        else:
+            exceeds_audio_length = False
 
-        Args:
-            index (list[dict]): list, containing dict for each element of
-                the dataset. The dict has required metadata information,
-                such as label and object path.
-            limit (int | None): if not None, limit the total number of elements
-                in the dataset to 'limit' elements.
-            shuffle_index (bool): if True, shuffle the index. Uses python
-                random package with seed 42.
-        """
-        if shuffle_index:
-            random.seed(42)
-            random.shuffle(index)
+        initial_size = len(index)
+        records_to_filter = exceeds_audio_length
+
+        if records_to_filter is not False and records_to_filter.any():
+            _total = records_to_filter.sum()
+            index = [el for el, exclude in zip(index, records_to_filter) if not exclude]
+            logger.info(
+                f"Filtered {_total}({_total / initial_size:.1%}) records  from dataset"
+            )
 
         if limit is not None:
+            random.seed(42)  # best seed for deep learning
+            random.shuffle(index)
             index = index[:limit]
         return index
+
+    @staticmethod
+    def _assert_index_is_valid(index):
+        for entry in index:
+            assert "reference" in entry, (
+                "Each dataset item should include field 'reference'"
+            )
+            assert "mix" in entry, (
+                "Each dataset item should include field 'mix'"
+            )
+            assert "target" in entry, (
+                "Each dataset item should include field 'target'"
+            )
