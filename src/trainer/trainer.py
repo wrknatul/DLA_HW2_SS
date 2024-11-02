@@ -1,6 +1,6 @@
 from src.metrics.tracker import MetricTracker
 from src.trainer.base_trainer import BaseTrainer
-
+import torch
 
 class Trainer(BaseTrainer):
     """
@@ -36,7 +36,7 @@ class Trainer(BaseTrainer):
 
         outputs = self.model(**batch)
         batch.update(outputs)
-        batch["labels"] = 0
+        batch["labels"] = torch.Tensor([0])
         all_losses = self.criterion(**batch)
         batch.update(all_losses)
 
