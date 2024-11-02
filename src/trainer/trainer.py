@@ -36,8 +36,8 @@ class Trainer(BaseTrainer):
 
         outputs = self.model(**batch)
         batch.update(outputs)
-        batch["labels"] = torch.ones((10, 10), type=torch.int64)
-        batch["labels"] = batch["labels"].to(self.device)
+        batch["labels"] = torch.ones((10, 10))
+        batch["labels"] = batch["labels"].to(torch.int64).to(self.device)
         all_losses = self.criterion(**batch)
         batch.update(all_losses)
 
