@@ -36,7 +36,7 @@ class Trainer(BaseTrainer):
 
         outputs = self.model(**batch)
         batch.update(outputs)
-        batch["labels"] = torch.Tensor([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        batch["labels"] = torch.ones((10, 10))/10
         all_losses = self.criterion(**batch)
         batch.update(all_losses)
 
