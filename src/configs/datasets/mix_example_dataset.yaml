@@ -1,0 +1,7 @@
+train:
+  _target_: src.datasets.LibrispeechMixed
+  part: "dev-other"
+
+val:
+  _target_: src.datasets.LibrispeechMixed
+  part: "dev-other"

@@ -1,8 +1,7 @@
 import logging
 import random
 from typing import List
-
-import torch
+import torchaudio
 from torch.utils.data import Dataset
 
 logger = logging.getLogger(__name__)
@@ -80,7 +79,7 @@ class BaseDataset(Dataset):
         Returns:
             data_object (Tensor):
         """
-        data_object = torch.load(path)
+        data_object, _ = torchaudio.load(path)
         return data_object
 
     def preprocess_data(self, instance_data):
@@ -139,12 +138,14 @@ class BaseDataset(Dataset):
                 such as label and object path.
         """
         for entry in index:
-            assert "path" in entry, (
-                "Each dataset item should include field 'path'" " - path to audio file."
+            assert "reference" in entry, (
+                "Each dataset item should include field 'reference'" " - reference audio file."
             )
-            assert "label" in entry, (
-                "Each dataset item should include field 'label'"
-                " - object ground-truth label."
+            assert "mix" in entry, (
+                "Each dataset item should include field 'mix'" "- mix audio file."
+            )
+            assert "target" in entry, (
+                "Each dataset item should include field 'mix'" "- mix audio file."
             )
 
     @staticmethod
