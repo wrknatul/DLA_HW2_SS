@@ -1,7 +1,7 @@
 defaults:
   - model: baseline
   - writer: wandb
-  - metrics: example
+  - metrics: spex_plus
   - datasets: mix_example_dataset
   - dataloader: example
   - transforms: example
