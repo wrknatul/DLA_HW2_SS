@@ -51,6 +51,12 @@ class LibrispeechMixed(BaseDataset):
         self.num_workers  = num_workers
         self.mixer_audio_length = mixer_audio_length
         index = self._get_or_load_index(part)
+        self.speaker_to_id = {}
+        for item in index:
+            speaker_id = int(item["ref_path"].split('/')[-1].split('_')[0])
+            if speaker_id not in self.speaker_ids:
+                self.speaker_to_id[speaker_id] = len(self.speaker_to_id)
+
         super().__init__(index, *args, **kwargs)
 
     def _load_part(self, part: str) -> None:
@@ -70,7 +76,8 @@ class LibrispeechMixed(BaseDataset):
         return {
             "reference": self.load_object(data_dict["reference"]),
             "mix": self.load_object(data_dict["mix"]),
-            "target": self.load_object(data_dict["target"])
+            "target": self.load_object(data_dict["target"]),
+            "speaker_id": self.load_object(data_dict["speaker_id"])
             }
 
     def _get_or_load_index(self, part: str) -> List[Dict[str, Any]]:
@@ -116,7 +123,8 @@ class LibrispeechMixed(BaseDataset):
             entry = {
                 "reference": str(refs[i]),
                 "mix": str(mixes[i]),
-                "target": str(targets[i])
+                "target": str(targets[i]),
+                "speaker_id": self.speaker_to_id[int(refs[i].split('/')[-1].split('_')[0])] 
             }
             index.append(entry)
 
