@@ -13,8 +13,8 @@ def spex_plus_test():
         tcn_out_channels=256,
         num_tcn_blocks=8,
         num_speakers=100)
-    mix = torch.ones((3, 1, 3313))
-    reference = torch.ones((3, 1, 600))
+    mix = torch.ones((3, 1, 3293))
+    reference = torch.ones((3, 1, 400))
     out = model(mix, reference)
     
     
