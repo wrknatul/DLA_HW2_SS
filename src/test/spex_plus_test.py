@@ -1,4 +1,5 @@
 import torch
+import torchaudio
 from src.model.spex_plus.model import SpexPlusModel
 
 def spex_plus_test():
@@ -13,8 +14,9 @@ def spex_plus_test():
         tcn_out_channels=256,
         num_tcn_blocks=8,
         num_speakers=100)
-    mix = torch.ones((3, 1, 3293))
-    reference = torch.ones((3, 1, 400))
-    out = model(mix, reference)
+    mix = torchaudio.load("/Users/ivansidor/DLA_HW2_SS/src/test/mix.wav")[0][None, :]
+    ref = torchaudio.load("/Users/ivansidor/DLA_HW2_SS/src/test/ref.wav")[0][None, :]
+    out = model(mix, ref)
+    print(out)
     
     
