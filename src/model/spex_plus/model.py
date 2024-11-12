@@ -46,7 +46,9 @@ class SpexPlusModel(nn.Module):
                 nn.Conv1d(resnet_in_channels, encoder_out_channels, kernel_size=1),
                 nn.ReLU()
             ) for i in range(len(sizes_of_conv_kernels)))
-        self.speaker_head = nn.Linear(speaker_encoder_out_channels, num_speakers)
+        self.speaker_linear = nn.Linear(
+            in_features=speaker_encoder_out_channels, 
+            out_features=num_speakers)
 
     def forward(self, audio_mix, audio_reference) :
         '''
@@ -64,7 +66,8 @@ class SpexPlusModel(nn.Module):
         decoded_mix_parts[0] = tfunc.pad(decoded_mix_parts[0], (0, audio_mix.shape[-1] - decoded_mix_parts[0].shape[-1]))
         for i in range(1, len(decoded_mix_parts)):
             decoded_mix_parts[i] = decoded_mix_parts[i][:, :, :audio_mix.shape[-1]]
-        return tuple(decoded_mix_parts), self.speaker_head(processed_audio_reference.squeeze())
+        output = decoded_mix_parts + [self.speaker_linear(processed_audio_reference.squeeze())]
+        return tuple(output) 
     
     def _process_reference(self, audio_reference):
         '''

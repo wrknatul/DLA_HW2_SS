@@ -94,9 +94,8 @@ class FirstTCNBlock(TCNBlock):
             dilation=1)
 
     def forward(self, input, audio_reference):
-        audio_reference = audio_reference.repeat(1, 1, input.shape[-1])
-        tmp = torch.cat([input, audio_reference], dim=1)
-        return super().forward(tmp) + input
+        audio_reference = audio_reference.repeat_interleave(input.shape[-1], dim=-1)
+        return super().forward(torch.cat([input, audio_reference], dim=1)) + input
 
 class RegularTCNBlock(TCNBlock):
     def __init__(
@@ -114,4 +113,4 @@ class RegularTCNBlock(TCNBlock):
             dilation=2 ** dilation_power)
 
     def forward(self, input):
-        return self.block(input)
+        return super().forward(input)
