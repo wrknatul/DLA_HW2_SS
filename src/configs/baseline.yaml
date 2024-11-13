@@ -1,10 +1,10 @@
 defaults:
-  - model: baseline
+  - model: spex_plus
   - writer: wandb
   - metrics: spex_plus
   - datasets: mix_example_dataset
   - dataloader: example
-  - transforms: example
+  - transforms: no_transforms
   - _self_
 optimizer:
   _target_: torch.optim.Adam

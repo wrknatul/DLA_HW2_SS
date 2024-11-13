@@ -48,31 +48,25 @@ class SpexPlusModel(nn.Module):
             ) for i in range(len(sizes_of_conv_kernels)))
         self.speaker_head = nn.Linear(speaker_encoder_out_channels, num_speakers)
 
-    def forward(self, audio_mix, audio_reference) :
-        '''
-        batch_size x 
-        (num_decoder_ouput_channels) x 
-        (audio_len // (min_decoder_kernel_size // 2) - 1)
-        '''
-        encoded_mix = self.encoded_mix_concater(torch.cat(self.encoder(audio_mix), 1))
-        processed_audio_reference = torch.sum(self._process_reference(audio_reference), -1, True)
+    def forward(self, mix: torch.Tensor, reference: torch.Tensor, **kwargs) -> dict:
+        encoded_mix = self.encoded_mix_concater(torch.cat(self.encoder(mix), 1))
+        processed_audio_reference = torch.sum(self._process_reference(reference), -1, True)
         processed_audio_mix_by_tcn = self.tcn(encoded_mix, processed_audio_reference)
         masked_mixes = []
         for mask_layer, mix_after_encoder in zip(self.after_encoder_masks, processed_audio_mix_by_tcn):
             masked_mixes.append(mix_after_encoder * mask_layer(encoded_mix))
         decoded_mix_parts = self.decoder(encoded_mix)
-        decoded_mix_parts[0] = tfunc.pad(decoded_mix_parts[0], (0, audio_mix.shape[-1] - decoded_mix_parts[0].shape[-1]))
+        decoded_mix_parts[0] = tfunc.pad(decoded_mix_parts[0], (0, mix.shape[-1] - decoded_mix_parts[0].shape[-1]))
         for i in range(1, len(decoded_mix_parts)):
-            decoded_mix_parts[i] = decoded_mix_parts[i][:, :, :audio_mix.shape[-1]]
-        return tuple(decoded_mix_parts), self.speaker_head(processed_audio_reference.squeeze())
+            decoded_mix_parts[i] = decoded_mix_parts[i][:, :, :mix.shape[-1]]
+        return {
+            "s1": masked_mixes[0],
+            "s2": masked_mixes[1],
+            "s3": masked_mixes[2],
+            "speaker_preds": self.speaker_head(processed_audio_reference.squeeze())
+        }
     
-    def _process_reference(self, audio_reference):
-        '''
-        Tuple of num_decoders elements, each is:
-        batch_size x 
-        (num_parallel_encoders * num_decoder_ouput_channels) x 
-        (reference_len // (min_decoder_kernel_size // 2) - 1)
-        '''
+    def _process_reference(self, audio_reference: torch.Tensor) -> torch.Tensor:
         encoded_reference = torch.cat(self.encoder(audio_reference), 1)
         encoded_reference = self.speaker_encoder(encoded_reference)
         return encoded_reference
