@@ -73,7 +73,7 @@ class LibrispeechMixed(BaseDataset):
             "reference": self.load_object(data_dict["reference"]),
             "mix": self.load_object(data_dict["mix"]),
             "target": self.load_object(data_dict["target"]),
-            "speaker_id": self.load_object(data_dict["speaker_id"])
+            "speaker_id": data_dict["speaker_id"]
             }
 
     def _get_or_load_index(self, part: str) -> List[Dict[str, Any]]:
