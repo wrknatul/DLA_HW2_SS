@@ -53,8 +53,8 @@ class LibrispeechMixed(BaseDataset):
         index = self._get_or_load_index(part)
         self.speaker_to_id = {}
         for item in index:
-            speaker_id = int(item["ref_path"].split('/')[-1].split('_')[0])
-            if speaker_id not in self.speaker_ids:
+            speaker_id = int(item["reference"].split('/')[-1].split('_')[0])
+            if speaker_id not in self.speaker_to_id:
                 self.speaker_to_id[speaker_id] = len(self.speaker_to_id)
 
         super().__init__(index, *args, **kwargs)
