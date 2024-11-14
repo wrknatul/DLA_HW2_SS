@@ -344,6 +344,7 @@ class BaseTrainer:
             batch (dict): dict-based batch containing the data from
                 the dataloader with some of the tensors on the device.
         """
+        self.logger.info("batch keys are", batch.keys())
         for tensor_for_device in self.cfg_trainer.device_tensors:
             batch[tensor_for_device] = batch[tensor_for_device].to(self.device)
         return batch
