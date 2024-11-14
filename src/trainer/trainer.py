@@ -28,9 +28,6 @@ class Trainer(BaseTrainer):
         """
         batch = self.move_batch_to_device(batch)
         batch = self.transform_batch(batch)  # transform batch on device -- faster
-        self.logger.info("mix shape is", batch["mix"].shape)
-        self.logger.info("reference shape is", batch["reference"].shape)
-        self.logger.info("target shape is", batch["target"].shape)
         metric_funcs = self.metrics["inference"]
         if self.is_train:
             metric_funcs = self.metrics["train"]
