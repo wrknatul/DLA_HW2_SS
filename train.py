@@ -18,7 +18,7 @@ def main(config):
     Main script for training. Instantiates the model, optimizer, scheduler,
     metrics, logger, writer, and dataloaders. Runs Trainer to train and
     evaluate the model.
-
+    
     Args:
         config (DictConfig): hydra experiment config.
     """
