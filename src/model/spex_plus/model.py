@@ -19,6 +19,7 @@ class SpexPlusModel(nn.Module):
             tcn_in_channels: int,
             tcn_middle_channels: int,
             tcn_out_channels: int,
+            num_tcns: int,
             num_tcn_blocks: int,
             num_speakers: int):
         super(SpexPlusModel, self).__init__()
@@ -35,12 +36,12 @@ class SpexPlusModel(nn.Module):
             out_channels=speaker_encoder_out_channels,
             resnet_in_channels=resnet_in_channels,
             resnet_out_channels=resnet_out_channels)        
-        self.tcn = TCN(
+        self.tcns = nn.ModuleList(TCN(
             num_tcn_blocks=num_tcn_blocks,
             in_channels=tcn_in_channels+speaker_encoder_out_channels,
             middle_channels=tcn_middle_channels,
             out_channels=tcn_out_channels,
-            kernel_size=3)
+            kernel_size=3) for i in range(num_tcns))
         self.after_encoder_masks = nn.ModuleList(
             nn.Sequential(
                 nn.Conv1d(resnet_in_channels, encoder_out_channels, kernel_size=1),
@@ -51,9 +52,10 @@ class SpexPlusModel(nn.Module):
     def forward(self, mix: torch.Tensor, reference: torch.Tensor, **kwargs) -> dict:
         encoded_mix = self.encoded_mix_concater(torch.cat(self.encoder(mix), 1))
         processed_audio_reference = torch.sum(self._process_reference(reference), -1, True)
-        processed_audio_mix_by_tcn = self.tcn(encoded_mix, processed_audio_reference)
+        for tcn in self.tcns:
+            encoded_mix = tcn(encoded_mix, processed_audio_reference)
         masked_mixes = []
-        for mask_layer, mix_after_encoder in zip(self.after_encoder_masks, processed_audio_mix_by_tcn):
+        for mask_layer, mix_after_encoder in zip(self.after_encoder_masks, encoded_mix):
             masked_mixes.append(mix_after_encoder * mask_layer(encoded_mix))
         decoded_mix_parts = self.decoder(encoded_mix)
         decoded_mix_parts[0] = tfunc.pad(decoded_mix_parts[0], (0, mix.shape[-1] - decoded_mix_parts[0].shape[-1]))
