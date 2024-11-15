@@ -1,7 +1,7 @@
-torch==2.4.1
+torch
 torchvision
 torchmetrics
-torchaudio==2.4.1
+torchaudio
 numpy==1.26.4
 tqdm
 matplotlib
