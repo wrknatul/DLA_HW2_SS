@@ -11,6 +11,7 @@ wandb
 comet_ml
 hydra-core
 speechbrain
+librosa
 
 black
 isort
