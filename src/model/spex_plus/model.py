@@ -7,6 +7,7 @@ from src.model.spex_plus.twin_speech_encoder import TwinSpeechEncoder
 from src.model.spex_plus.mix_speech_decoder import MixSpeechDecoder
 from src.model.spex_plus.speaker_encoder import SpeakerEncoder
 from src.model.spex_plus.tcn import TCN
+import gc
 
 class SpexPlusModel(nn.Module):
     def __init__(
@@ -52,15 +53,23 @@ class SpexPlusModel(nn.Module):
     def forward(self, mix: torch.Tensor, reference: torch.Tensor, **kwargs) -> dict:
         encoded_mix = self.encoded_mix_concater(torch.cat(self.encoder(mix), 1))
         processed_audio_reference = torch.sum(self._process_reference(reference), -1, True)
+        torch.cuda.empty_cache()
+        gc.collect()
         for tcn in self.tcns:
-            encoded_mix = tcn(encoded_mix, processed_audio_reference)
+            encoded_mix = tcn(encoded_mix, processed_audio_reference) 
+            torch.cuda.empty_cache()
+            gc.collect()
         masked_mixes = []
         for mask_layer, mix_after_encoder in zip(self.after_encoder_masks, encoded_mix):
             masked_mixes.append(mix_after_encoder * mask_layer(encoded_mix))
+            torch.cuda.empty_cache()
+            gc.collect()
         decoded_mix_parts = self.decoder(encoded_mix)
         decoded_mix_parts[0] = tfunc.pad(decoded_mix_parts[0], (0, mix.shape[-1] - decoded_mix_parts[0].shape[-1]))
         for i in range(1, len(decoded_mix_parts)):
             decoded_mix_parts[i] = decoded_mix_parts[i][:, :, :mix.shape[-1]]
+            torch.cuda.empty_cache()
+            gc.collect()
         return {
             "s1": decoded_mix_parts[0],
             "s2": decoded_mix_parts[1],
