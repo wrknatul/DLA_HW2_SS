@@ -6,12 +6,10 @@ numpy==1.26.4
 tqdm
 matplotlib
 pandas
-pesq
 wandb
 comet_ml
 hydra-core
 speechbrain
-librosa
 
 black
 isort
