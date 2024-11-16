@@ -65,11 +65,14 @@ class SpexPlusModel(nn.Module):
         decoded_mix_parts[0] = tfunc.pad(decoded_mix_parts[0], (0, mix.shape[-1] - decoded_mix_parts[0].shape[-1]))
         for i in range(1, len(decoded_mix_parts)):
             decoded_mix_parts[i] = decoded_mix_parts[i][:, :, :mix.shape[-1]]
+        speaker_preds = self.speaker_head(processed_audio_reference.squeeze())
+        if speaker_preds.ndim == 1:
+            speaker_preds = torch.unsqueeze(0)
         return {
             "s1": decoded_mix_parts[0],
             "s2": decoded_mix_parts[1],
             "s3": decoded_mix_parts[2],
-            "speaker_preds": self.speaker_head(processed_audio_reference.squeeze())
+            "speaker_preds": speaker_preds,
         }
     
     def _process_reference(self, audio_reference: torch.Tensor) -> torch.Tensor:
