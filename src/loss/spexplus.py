@@ -33,7 +33,7 @@ class SpexPlusLoss(torch.nn.Module):
 
         ce_loss = 0
         if speaker_preds is not None:
-            ce_loss = self.ce_loss(speaker_preds, speaker_id)
+            ce_loss = self.ce_loss(speaker_preds, speaker_id.type(torch.LongTensor))
 
         loss = si_sdr_loss + self.gamma * ce_loss
         return loss
