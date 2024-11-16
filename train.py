@@ -35,6 +35,10 @@ def main(config):
 
     # setup data_loader instances
     # batch_transforms should be put on device
+    t = torch.cuda.get_device_properties(0).total_memory
+    r = torch.cuda.memory_reserved(0)
+    a = torch.cuda.memory_allocated(0)
+    print("free", t, r, a, r - a)
     dataloaders, batch_transforms = get_dataloaders(config, device)
     t = torch.cuda.get_device_properties(0).total_memory
     r = torch.cuda.memory_reserved(0)
