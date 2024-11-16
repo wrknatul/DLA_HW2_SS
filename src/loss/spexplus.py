@@ -13,6 +13,9 @@ class SpexPlusLoss(torch.nn.Module):
         self.beta = beta
         self.gamma = gamma
         self.ce_loss = CrossEntropyLoss(reduction='mean')
+        self.dist_ratio_1 = si_sdr()
+        self.dist_ratio_2 = si_sdr()
+        self.dist_ratio_3 = si_sdr()
 
     def forward(
             self, 
@@ -23,9 +26,9 @@ class SpexPlusLoss(torch.nn.Module):
         speaker_id = speaker_id.to(device)
         target_audio = target.to(device)
 
-        s1_loss = (1 - self.alpha - self.beta) * si_sdr(s1, target_audio)
-        s2_loss = self.alpha * si_sdr(s2, target_audio)
-        s3_loss = self.beta * si_sdr(s3, target_audio)
+        s1_loss = (1 - self.alpha - self.beta) * self.dist_ratio_1(s1, target_audio)
+        s2_loss = self.alpha * self.dist_ratio_2(s2, target_audio)
+        s3_loss = self.beta * self.dist_ratio_3(s3, target_audio)
         si_sdr_loss = -(s1_loss + s2_loss + s3_loss)
 
         ce_loss = 0
