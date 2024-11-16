@@ -1,7 +1,7 @@
 train:
   _target_: src.datasets.LibrispeechMixed
-  part: "dev-other"
+  part: "train-clean-100"
 
 val:
   _target_: src.datasets.LibrispeechMixed
-  part: "dev-other"
+  part: "test-clean"
