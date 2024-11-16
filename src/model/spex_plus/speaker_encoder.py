@@ -11,10 +11,10 @@ class SpeakerEncoder(nn.Module):
             resnet_out_channels: int):
         super(SpeakerEncoder, self).__init__()
         self.normalization = nn.LayerNorm(in_channels)
-        self.conv1d1 =nn.Conv1d(
+        self.conv1d1 = nn.Conv1d(
                 in_channels=in_channels,
                 out_channels=resnet_in_channels,
-                kernel_size=1),
+                kernel_size=1)
         self.resnet1 = ResNetBlock(
                 in_channels=resnet_in_channels,
                 out_channels=resnet_in_channels)
