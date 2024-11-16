@@ -30,7 +30,6 @@ class Trainer(BaseTrainer):
         batch = self.transform_batch(batch)  # transform batch on device -- faster
         metric_funcs = self.metrics["inference"]
         if self.is_train:
-            return
             metric_funcs = self.metrics["train"]
             self.optimizer.zero_grad()
 
@@ -45,7 +44,6 @@ class Trainer(BaseTrainer):
         batch.update(all_losses)
 
         if self.is_train:
-            return
             batch["loss"].backward()  # sum of all losses is always called loss
             self._clip_grad_norm()
             self.optimizer.step()

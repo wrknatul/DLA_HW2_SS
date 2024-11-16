@@ -202,46 +202,45 @@ class BaseTrainer:
         self.train_metrics.reset()
         self.writer.set_step((epoch - 1) * self.epoch_len)
         self.writer.add_scalar("epoch", epoch)
-        # for batch_idx, batch in enumerate(
-        #     tqdm(self.train_dataloader, desc="train", total=self.epoch_len)
-        # ):
-        #     try:
-        #         batch = self.process_batch(
-        #             batch,
-        #             metrics=self.train_metrics,
-        #         )
-        #     except torch.cuda.OutOfMemoryError as e:
-        #         if self.skip_oom:
-        #             self.logger.warning("OOM on batch. Skipping batch.")
-        #             torch.cuda.empty_cache()  # free some memory
-        #             continue
-        #         else:
-        #             raise e
+        for batch_idx, batch in enumerate(
+            tqdm(self.train_dataloader, desc="train", total=self.epoch_len)
+        ):
+            try:
+                batch = self.process_batch(
+                    batch,
+                    metrics=self.train_metrics,
+                )
+            except torch.cuda.OutOfMemoryError as e:
+                if self.skip_oom:
+                    self.logger.warning("OOM on batch. Skipping batch.")
+                    torch.cuda.empty_cache()  # free some memory
+                    continue
+                else:
+                    raise e
 
-        #     self.train_metrics.update("grad_norm", self._get_grad_norm())
+            self.train_metrics.update("grad_norm", self._get_grad_norm())
 
-        #     # log current results
-        #     if batch_idx % self.log_step == 0:
-        #         self.writer.set_step((epoch - 1) * self.epoch_len + batch_idx)
-        #         self.logger.debug(
-        #             "Train Epoch: {} {} Loss: {:.6f}".format(
-        #                 epoch, self._progress(batch_idx), batch["loss"].item()
-        #             )
-        #         )
-        #         self.writer.add_scalar(
-        #             "learning rate", self.lr_scheduler.get_last_lr()[0]
-        #         )
-        #         self._log_scalars(self.train_metrics)
-        #         self._log_batch(batch_idx, batch)
-        #         # we don't want to reset train metrics at the start of every epoch
-        #         # because we are interested in recent train metrics
-        #         last_train_metrics = self.train_metrics.result()
-        #         self.train_metrics.reset()
-        #     if batch_idx + 1 >= self.epoch_len:
-        #         break
+            # log current results
+            if batch_idx % self.log_step == 0:
+                self.writer.set_step((epoch - 1) * self.epoch_len + batch_idx)
+                self.logger.debug(
+                    "Train Epoch: {} {} Loss: {:.6f}".format(
+                        epoch, self._progress(batch_idx), batch["loss"].item()
+                    )
+                )
+                self.writer.add_scalar(
+                    "learning rate", self.lr_scheduler.get_last_lr()[0]
+                )
+                self._log_scalars(self.train_metrics)
+                self._log_batch(batch_idx, batch)
+                # we don't want to reset train metrics at the start of every epoch
+                # because we are interested in recent train metrics
+                last_train_metrics = self.train_metrics.result()
+                self.train_metrics.reset()
+            if batch_idx + 1 >= self.epoch_len:
+                break
 
-        # logs = last_train_metrics
-        logs = {}
+        logs = last_train_metrics
 
         # Run val/test
         for part, dataloader in self.evaluation_dataloaders.items():
