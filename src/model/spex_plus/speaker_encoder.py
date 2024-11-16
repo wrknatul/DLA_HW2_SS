@@ -11,29 +11,28 @@ class SpeakerEncoder(nn.Module):
             resnet_out_channels: int):
         super(SpeakerEncoder, self).__init__()
         self.normalization = nn.LayerNorm(in_channels)
-        self.conv1d1 = nn.Conv1d(
+        self.resnet = nn.Sequential(
+            nn.Conv1d(
                 in_channels=in_channels,
                 out_channels=resnet_in_channels,
-                kernel_size=1)
-        self.resnet1 = ResNetBlock(
+                kernel_size=1),
+            ResNetBlock(
                 in_channels=resnet_in_channels,
-                out_channels=resnet_in_channels)
-        self.resnet2 = ResNetBlock(
+                out_channels=resnet_in_channels),
+            ResNetBlock(
                 in_channels=resnet_in_channels,
-                out_channels=resnet_out_channels)
-        self.resnet3 = ResNetBlock(
+                out_channels=resnet_out_channels),
+            ResNetBlock(
                 in_channels=resnet_out_channels,
-                out_channels=resnet_out_channels)
-        self.conv1d2 = nn.Conv1d(
+                out_channels=resnet_out_channels),
+            nn.Conv1d(
                 in_channels=resnet_out_channels,
                 out_channels=out_channels,
-                kernel_size=1)
+                kernel_size=1))
         
     def forward(self, input):
-        output = torch.transpose(self.normalization(torch.transpose(input, 1, 2)), 1, 2)
-        output = self.conv1d1(output)
-        output = self.resnet1(output)
-        output = self.resnet2(output)
-        output = self.resnet3(output)
-        output = self.conv1d2(output)
+        output = torch.transpose(input, 1, 2)
+        output = self.normalization(output)
+        output = torch.transpose(output, 1, 2)
+        output = self.resnet(output)
         return output
