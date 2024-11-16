@@ -7,7 +7,6 @@ from src.model.spex_plus.twin_speech_encoder import TwinSpeechEncoder
 from src.model.spex_plus.mix_speech_decoder import MixSpeechDecoder
 from src.model.spex_plus.speaker_encoder import SpeakerEncoder
 from src.model.spex_plus.tcn import TCN
-import gc
 
 class SpexPlusModel(nn.Module):
     def __init__(
@@ -51,25 +50,23 @@ class SpexPlusModel(nn.Module):
         self.speaker_head = nn.Linear(speaker_encoder_out_channels, num_speakers)
 
     def forward(self, mix: torch.Tensor, reference: torch.Tensor, **kwargs) -> dict:
+        dbg()
         encoded_mix = self.encoded_mix_concater(torch.cat(self.encoder(mix), 1))
+        dbg()
         processed_audio_reference = torch.sum(self._process_reference(reference), -1, True)
-        torch.cuda.empty_cache()
-        gc.collect()
+        dbg()
         for tcn in self.tcns:
-            encoded_mix = tcn(encoded_mix, processed_audio_reference) 
-            torch.cuda.empty_cache()
-            gc.collect()
+            encoded_mix = tcn(encoded_mix, processed_audio_reference)
+            dbg()
         masked_mixes = []
         for mask_layer, mix_after_encoder in zip(self.after_encoder_masks, encoded_mix):
             masked_mixes.append(mix_after_encoder * mask_layer(encoded_mix))
-            torch.cuda.empty_cache()
-            gc.collect()
+            dbg()
         decoded_mix_parts = self.decoder(encoded_mix)
+        dbg()
         decoded_mix_parts[0] = tfunc.pad(decoded_mix_parts[0], (0, mix.shape[-1] - decoded_mix_parts[0].shape[-1]))
         for i in range(1, len(decoded_mix_parts)):
             decoded_mix_parts[i] = decoded_mix_parts[i][:, :, :mix.shape[-1]]
-            torch.cuda.empty_cache()
-            gc.collect()
         return {
             "s1": decoded_mix_parts[0],
             "s2": decoded_mix_parts[1],
@@ -81,3 +78,9 @@ class SpexPlusModel(nn.Module):
         encoded_reference = torch.cat(self.encoder(audio_reference), 1)
         encoded_reference = self.speaker_encoder(encoded_reference)
         return encoded_reference
+    
+def dbg():
+    t = torch.cuda.get_device_properties(0).total_memory
+    r = torch.cuda.memory_reserved(0)
+    a = torch.cuda.memory_allocated(0)
+    print(t, r, a)
