@@ -122,7 +122,7 @@ class LibrispeechMixed(BaseDataset):
             entry = {
                 "reference": str(refs[i]),
                 "mix": str(mixes[i]),
-                "target": str(targets[i]),
+                "target_audio": str(targets[i]),
                 "speaker_id": self.speaker_to_id[speaker_id] 
             }
             index.append(entry)
