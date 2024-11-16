@@ -62,9 +62,9 @@ class SpexPlusModel(nn.Module):
         for i in range(1, len(decoded_mix_parts)):
             decoded_mix_parts[i] = decoded_mix_parts[i][:, :, :mix.shape[-1]]
         return {
-            "s1": masked_mixes[0],
-            "s2": masked_mixes[1],
-            "s3": masked_mixes[2],
+            "s1": decoded_mix_parts[0],
+            "s2": decoded_mix_parts[1],
+            "s3": decoded_mix_parts[2],
             "speaker_preds": self.speaker_head(processed_audio_reference.squeeze())
         }
     
