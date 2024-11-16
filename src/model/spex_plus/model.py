@@ -67,7 +67,7 @@ class SpexPlusModel(nn.Module):
             decoded_mix_parts[i] = decoded_mix_parts[i][:, :, :mix.shape[-1]]
         speaker_preds = self.speaker_head(processed_audio_reference.squeeze())
         if speaker_preds.ndim == 1:
-            speaker_preds = torch.unsqueeze(0)
+            speaker_preds = torch.unsqueeze(speaker_preds, 0)
         return {
             "s1": decoded_mix_parts[0],
             "s2": decoded_mix_parts[1],
