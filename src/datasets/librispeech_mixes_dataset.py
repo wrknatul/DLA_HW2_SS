@@ -72,7 +72,7 @@ class LibrispeechMixed(BaseDataset):
         return {
             "reference": self.load_object(data_dict["reference"]),
             "mix": self.load_object(data_dict["mix"]),
-            "target_audio": self.load_object(data_dict["target"]),
+            "target": self.load_object(data_dict["target"]),
             "speaker_id": data_dict["speaker_id"]
             }
 
@@ -122,7 +122,7 @@ class LibrispeechMixed(BaseDataset):
             entry = {
                 "reference": str(refs[i]),
                 "mix": str(mixes[i]),
-                "target_audio": str(targets[i]),
+                "target": str(targets[i]),
                 "speaker_id": self.speaker_to_id[speaker_id] 
             }
             index.append(entry)

@@ -16,12 +16,12 @@ class SpexPlusLoss(torch.nn.Module):
 
     def forward(
             self, 
-            s1: Tensor, s2: Tensor, s3: Tensor, target_audio: Tensor,
+            s1: Tensor, s2: Tensor, s3: Tensor, target: Tensor,
             speaker_preds: Tensor = None, speaker_id: Tensor = None, **batch
         ) -> Tensor:
         device = speaker_preds.device
         speaker_id = speaker_id.to(device)
-        target_audio = target_audio.to(device)
+        target_audio = target.to(device)
 
         s1_loss = (1 - self.alpha - self.beta) * si_sdr(s1, target_audio)
         s2_loss = self.alpha * si_sdr(s2, target_audio)
