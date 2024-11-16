@@ -26,8 +26,7 @@ class Trainer(BaseTrainer):
                 the dataloader (possibly transformed via batch transform),
                 model outputs, and losses.
         """
-        for k, v in batch:
-            print(k, v.shape)
+        print(type(batch))
         batch = self.move_batch_to_device(batch)
         batch = self.transform_batch(batch)  # transform batch on device -- faster
         metric_funcs = self.metrics["inference"]
@@ -36,8 +35,10 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
 
         outputs = self.model(**batch)
-        for k, v in outputs:
-            print(k, v.shape)
+        print("s1", outputs["s1"].shape)
+        print("s2", outputs["s2"].shape)
+        print("s3", outputs["s3"].shape)
+        print("speaker_preds", outputs["speaker_preds"].shape)
         batch.update(outputs)
 
         all_losses = self.criterion(**batch)
