@@ -44,6 +44,7 @@ class Trainer(BaseTrainer):
         batch.update(all_losses)
 
         if self.is_train:
+            return
             batch["loss"].backward()  # sum of all losses is always called loss
             self._clip_grad_norm()
             self.optimizer.step()
