@@ -32,6 +32,8 @@ class SpexPlusLoss(torch.nn.Module):
         si_sdr_loss = -(s1_loss + s2_loss + s3_loss)
 
         ce_loss = 0
+        print("preds", speaker_preds.shape)
+        print("id", speaker_id.shape)
         if speaker_preds is not None:
             ce_loss = self.ce_loss(speaker_preds, speaker_id)
 
