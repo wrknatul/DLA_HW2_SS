@@ -23,7 +23,7 @@ class SpexPlusLoss(torch.nn.Module):
             speaker_preds: Tensor = None, speaker_id: Tensor = None, **batch
         ) -> Tensor:
         device = speaker_preds.device
-        speaker_id = speaker_id.to(device)
+        speaker_id = speaker_id.type(torch.LongTensor).to(device)
         target_audio = target.to(device)
 
         s1_loss = (1 - self.alpha - self.beta) * self.dist_ratio_1(s1, target_audio)
@@ -33,7 +33,7 @@ class SpexPlusLoss(torch.nn.Module):
 
         ce_loss = 0
         if speaker_preds is not None:
-            ce_loss = self.ce_loss(speaker_preds, speaker_id.type(torch.LongTensor))
+            ce_loss = self.ce_loss(speaker_preds, speaker_id)
 
         loss = si_sdr_loss + self.gamma * ce_loss
         return loss
