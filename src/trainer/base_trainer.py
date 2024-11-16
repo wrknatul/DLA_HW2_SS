@@ -240,7 +240,8 @@ class BaseTrainer:
         #     if batch_idx + 1 >= self.epoch_len:
         #         break
 
-        logs = last_train_metrics
+        # logs = last_train_metrics
+        logs = {}
 
         # Run val/test
         for part, dataloader in self.evaluation_dataloaders.items():
