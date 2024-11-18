@@ -50,10 +50,6 @@ class SpexPlusModel(nn.Module):
         self.speaker_head = nn.Linear(speaker_encoder_out_channels, num_speakers)
 
     def forward(self, mix: torch.Tensor, reference: torch.Tensor, **kwargs) -> dict:
-        t = torch.cuda.get_device_properties(0).total_memory
-        r = torch.cuda.memory_reserved(0)
-        a = torch.cuda.memory_allocated(0)
-        print(t, r, a)
         encoded_mix = self.encoded_mix_concater(torch.cat(self.encoder(mix), 1))
         processed_audio_reference = torch.sum(self._process_reference(reference), -1, True)
         for tcn in self.tcns:
