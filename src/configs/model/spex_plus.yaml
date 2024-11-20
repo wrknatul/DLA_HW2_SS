@@ -4,9 +4,9 @@ encoder_out_channels: 256
 resnet_in_channels: 256
 resnet_out_channels: 512
 speaker_encoder_out_channels: 256
-tcn_in_channels: 256 
+tcn_in_channels: 256
 tcn_middle_channels: 512
 tcn_out_channels: 256
-num_tcns: 4
-num_tcn_blocks: 8
+num_tcns: 2
+num_tcn_blocks: 4
 num_speakers: 100
