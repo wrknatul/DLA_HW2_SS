@@ -10,7 +10,7 @@ class PESQMetric(BaseMetric):
         self.sr = sr
         self.pesq = PESQ(self.sr, 'wb')
 
-    def __call__(self, preds: torch.Tensor, target_audio: torch.Tensor, **kwargs):
-        self.pesq = self.pesq.to(preds.device)
-        pesq = self.pesq(preds / preds.norm(dim=-1, keepdim=True), target_audio)
+    def __call__(self, s1: torch.Tensor, target: torch.Tensor, **kwargs):
+        self.pesq = self.pesq.to(s1.device)
+        pesq = self.pesq(s1 / s1.norm(dim=-1, keepdim=True), target)
         return pesq 

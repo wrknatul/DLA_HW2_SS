@@ -13,24 +13,31 @@ class SpexPlusLoss(torch.nn.Module):
         self.beta = beta
         self.gamma = gamma
         self.ce_loss = CrossEntropyLoss(reduction='mean')
+        self.dist_ratio_1 = si_sdr()
+        self.dist_ratio_2 = si_sdr()
+        self.dist_ratio_3 = si_sdr()
 
     def forward(
             self, 
-            s1: Tensor, s2: Tensor, s3: Tensor, target_audio: Tensor,
+            s1: Tensor, s2: Tensor, s3: Tensor, target: Tensor,
             speaker_preds: Tensor = None, speaker_id: Tensor = None, **batch
         ) -> Tensor:
         device = speaker_preds.device
-        speaker_id = speaker_id.to(device)
-        target_audio = target_audio.to(device)
+        speaker_id = speaker_id.type(torch.LongTensor).to(device)
+        target_audio = target.to(device)
 
-        s1_loss = (1 - self.alpha - self.beta) * si_sdr(s1, target_audio)
-        s2_loss = self.alpha * si_sdr(s2, target_audio)
-        s3_loss = self.beta * si_sdr(s3, target_audio)
+        s1_loss = (1 - self.alpha - self.beta) * self.dist_ratio_1(s1, target_audio)
+        s2_loss = self.alpha * self.dist_ratio_2(s2, target_audio)
+        s3_loss = self.beta * self.dist_ratio_3(s3, target_audio)
         si_sdr_loss = -(s1_loss + s2_loss + s3_loss)
 
         ce_loss = 0
+        print("preds", speaker_preds.shape)
+        print("id", speaker_id.shape)
         if speaker_preds is not None:
             ce_loss = self.ce_loss(speaker_preds, speaker_id)
 
         loss = si_sdr_loss + self.gamma * ce_loss
-        return loss
+        return {
+            "loss": loss,
+        }

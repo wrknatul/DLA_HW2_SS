@@ -22,15 +22,17 @@ def collate_fn(dataset_items: list[dict]):
     mix_audios = []
     reference_audios = []
     target_audios = []
+    speakers_id = []
 
     for item in dataset_items:
-
         mix_audios.append(item["mix"].squeeze(0))
         reference_audios.append(item["reference"].squeeze(0))
         target_audios.append(item["target"].squeeze(0))  
+        speakers_id.append(item["speaker_id"])
     
     return {
-        "mix": pad_sequence(mix_audios, batch_first=True),
-        "reference": pad_sequence(reference_audios, batch_first=True),
-        "target": pad_sequence(target_audios, batch_first=True)
+        "mix": pad_sequence(mix_audios, batch_first=True).unsqueeze(1),
+        "reference": pad_sequence(reference_audios, batch_first=True).unsqueeze(1),
+        "target": pad_sequence(target_audios, batch_first=True).unsqueeze(1),
+        "speaker_id": torch.Tensor(speakers_id)
     }

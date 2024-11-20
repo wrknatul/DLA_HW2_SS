@@ -18,7 +18,7 @@ def main(config):
     Main script for training. Instantiates the model, optimizer, scheduler,
     metrics, logger, writer, and dataloaders. Runs Trainer to train and
     evaluate the model.
-
+    
     Args:
         config (DictConfig): hydra experiment config.
     """
@@ -35,20 +35,39 @@ def main(config):
 
     # setup data_loader instances
     # batch_transforms should be put on device
+    t = torch.cuda.get_device_properties(0).total_memory
+    r = torch.cuda.memory_reserved(0)
+    a = torch.cuda.memory_allocated(0)
+    print("free", t, r, a, r - a)
     dataloaders, batch_transforms = get_dataloaders(config, device)
-
+    t = torch.cuda.get_device_properties(0).total_memory
+    r = torch.cuda.memory_reserved(0)
+    a = torch.cuda.memory_allocated(0)
+    print("free", t, r, a, r - a)
     # build model architecture, then print to console
     model = instantiate(config.model).to(device)
+    t = torch.cuda.get_device_properties(0).total_memory
+    r = torch.cuda.memory_reserved(0)
+    a = torch.cuda.memory_allocated(0)
+    print("free", t, r, a, r - a)
     logger.info(model)
 
     # get function handles of loss and metrics
     loss_function = instantiate(config.loss_function).to(device)
     metrics = instantiate(config.metrics)
 
+    t = torch.cuda.get_device_properties(0).total_memory
+    r = torch.cuda.memory_reserved(0)
+    a = torch.cuda.memory_allocated(0)
+    print("free", t, r, a, r - a)
     # build optimizer, learning rate scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = instantiate(config.optimizer, params=trainable_params)
     lr_scheduler = instantiate(config.lr_scheduler, optimizer=optimizer)
+    t = torch.cuda.get_device_properties(0).total_memory
+    r = torch.cuda.memory_reserved(0)
+    a = torch.cuda.memory_allocated(0)
+    print("free", t, r, a, r - a)
 
     # epoch_len = number of iterations for iteration-based training
     # epoch_len = None or len(dataloader) for epoch-based training

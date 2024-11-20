@@ -28,13 +28,16 @@ class Trainer(BaseTrainer):
         """
         batch = self.move_batch_to_device(batch)
         batch = self.transform_batch(batch)  # transform batch on device -- faster
-
         metric_funcs = self.metrics["inference"]
         if self.is_train:
             metric_funcs = self.metrics["train"]
             self.optimizer.zero_grad()
 
         outputs = self.model(**batch)
+        # print("s1", outputs["s1"].shape)
+        # print("s2", outputs["s2"].shape)
+        # print("s3", outputs["s3"].shape)
+        # print("speaker_preds", outputs["speaker_preds"].shape)
         batch.update(outputs)
 
         all_losses = self.criterion(**batch)
