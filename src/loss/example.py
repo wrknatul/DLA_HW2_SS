@@ -11,7 +11,7 @@ class ExampleLoss(nn.Module):
         super().__init__()
         self.loss = nn.CrossEntropyLoss()
 
-    def forward(self, logits: torch.Tensor, labels: torch.Tensor = torch.empty((10, 1), device="cuda"), **batch):
+    def forward(self, logits: torch.Tensor, labels: torch.Tensor, **batch):
         """
         Loss function calculation logic.
 

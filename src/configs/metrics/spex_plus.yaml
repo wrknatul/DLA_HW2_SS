@@ -7,6 +7,9 @@ train: # metrics that are calculated during training
     device: ${metrics.device}
     name: "PESQ Metric"
 inference: # metrics that are calculated during inference (eval)
+  - _target_: src.metrics.SISDRMetric
+    device: ${metrics.device}
+    name: "SI_SDR Metric"
   - _target_: src.metrics.PESQMetric
     device: ${metrics.device}
     name: "PESQ Metric"
