@@ -52,18 +52,19 @@ class CustomDirDataset(BaseDataset):
 
     def _create_index(self) -> List[Dict[str, Any]]:
 
-        mixes = np.array(sorted(glob(str(self.dataset_folder / 'audio' / 'mix' / 'FirstSpeakerID*'))), dtype=object)
+        mixes = np.array(sorted(glob(str(self.dataset_folder / Path('audios') / Path('mix') / Path('FirstSpeakerID*')))), dtype=object)
   
         index = []
         for i in range(len(mixes)):
             fileName = 'FirstSpeakerID' + str(i + 1) + '*'
             reference = str(mixes[i])
             target = str(mixes[i])
-            if len(glob(str(self.dataset_folder / 'audio' / 's1' / fileName))) > 0:
-                reference = str(glob(str(self.dataset_folder / 'audio' / 's1' / fileName))[0])
+            if len(glob(str(self.dataset_folder / Path('audios') / Path('s1') / fileName))) > 0:
+                reference = glob(str(self.dataset_folder / Path('audios') / Path('s1') / fileName))[0]
             
-            if len(glob(str(self.dataset_folder / 'audio' / 's2' / fileName))) > 0:
-                target = str(glob(str(self.dataset_folder / 'audio' / 's2' / fileName))[0])
+            if len(glob(str(self.dataset_folder / Path('audios') / Path('s2') / fileName))) > 0:
+                print(glob(str(self.dataset_folder / Path('audios') / Path('s2') / fileName)))
+                target = glob(str(self.dataset_folder / Path('audios') / Path('s2') / fileName))[0]
             entry = {
 
                 "reference": reference,
@@ -74,3 +75,5 @@ class CustomDirDataset(BaseDataset):
             index.append(entry)
 
         return index 
+    
+# CustomDirDataset(dataset_folder = "/Users/molutan/Downloads/DirectoryWithUtterances")

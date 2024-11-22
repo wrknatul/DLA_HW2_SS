@@ -1,3 +1,3 @@
 val:
   _target_: src.datasets.CustomDirDataset
-  path : "/kaggle/working/DirectoryWithUtterances"
+  dataset_folder : "/kaggle/input/dataset-dir/DirectoryWithUtterances"
