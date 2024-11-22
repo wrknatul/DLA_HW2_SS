@@ -56,7 +56,7 @@ class CustomDirDataset(BaseDataset):
   
         index = []
         for i in range(len(mixes)):
-            fileName = 'FirstSpeakerID' + str(i + 1) + '*'
+            fileName = 'FirstSpeakerID' + str(i + 1) + '_*'
             reference = str(mixes[i])
             target = str(mixes[i])
             if len(glob(str(self.dataset_folder / Path('audios') / Path('s1') / fileName))) > 0:
