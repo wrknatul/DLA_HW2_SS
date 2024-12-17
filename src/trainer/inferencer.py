@@ -158,6 +158,9 @@ class Inferencer(BaseTrainer):
         # create Save dir
         if self.save_path is not None:
             (self.save_path / part).mkdir(exist_ok=True, parents=True)
+            (self.save_path / "s1").mkdir(exist_ok=True, parents=True)
+            (self.save_path / "s2").mkdir(exist_ok=True, parents=True)
+
 
         with torch.no_grad():
             for batch_idx, batch in tqdm(
