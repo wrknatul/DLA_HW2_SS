@@ -92,6 +92,9 @@ To run inference (evaluate the model or save predictions):
 ```bash
 python3 inference.py HYDRA_CONFIG_ARGUMENTS
 ```
+param for folder with audios: datasets.dataset_folder
+param for path to checkpoint: inferencer.from_pretrained
+param for save directory: inferencer.save_path
 link to checkpoint: https://www.kaggle.com/datasets/moaimonument/checkpoint
 
 ## Credits
