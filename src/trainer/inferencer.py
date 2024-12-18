@@ -138,9 +138,9 @@ class Inferencer(BaseTrainer):
                 # you can use safetensors or other lib here
         torch.save(metrics, self.save_path / "output.pth")
         torch.save(outputs["s1"][0], self.save_path / "s1" / Path('FirstSpeakerID' + 
-            str(batch["speaker_id"][0]) + '_' + 'SecondSpeakerID' + str(batch["speaker_id"][0]) + ".wav"))
+            str(batch["speaker_id"][0].item()) + '_' + 'SecondSpeakerID' + str(batch["speaker_id"][0].item()) + ".wav"))
         torch.save(outputs["s2"][0], self.save_path / "s2" / Path('FirstSpeakerID' + 
-            str(batch["speaker_id"][0]) + '_' + 'SecondSpeakerID' + str(batch["speaker_id"][0]) + ".wav"))
+            str(batch["speaker_id"][0].item()) + '_' + 'SecondSpeakerID' + str(batch["speaker_id"][0].item()) + ".wav"))
 
         return batch
 
