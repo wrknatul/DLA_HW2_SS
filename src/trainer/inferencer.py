@@ -136,6 +136,10 @@ class Inferencer(BaseTrainer):
             metrics.update(met.name, met(**batch))
                 # you can use safetensors or other lib here
         torch.save(metrics, self.save_path / "output.pth")
+        torch.save(outputs["s1"][0], self.save_path / "s1" / Path('FirstSpeakerID' + 
+            str(batch["speaker_id"][0]) + '_' + 'SecondSpeakerID' + str(batch["speaker_id"][0]) + ".wav"))
+        torch.save(outputs["s2"][0], self.save_path / "s2" / Path('FirstSpeakerID' + 
+            str(batch["speaker_id"][0]) + '_' + 'SecondSpeakerID' + str(batch["speaker_id"][0]) + ".wav"))
 
         return batch
 
