@@ -2,7 +2,7 @@ defaults:
   - model: spex_plus
   - writer: wandb
   - metrics: spex_plus
-  - datasets: inference_dataset # we do not want to run inference on training data
+  - datasets:  mix_example_dataset # we do not want to run inference on training data
   - dataloader: batch_size
   - transforms: no_transforms
   - _self_
